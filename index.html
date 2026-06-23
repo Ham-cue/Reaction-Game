@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reaction Game</title>
+  <style>
+    body {
+      background: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+    }
+    #title {
+      flex: 1;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    #darkmode-toggle {
+      cursor: pointer;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #333;
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.3s, color 0.3s;
+    }
+    #scoreboard {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(2, 200px);
+      grid-template-rows: repeat(2, 200px);
+      gap: 40px;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .box {
+      width: 200px;
+      height: 200px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .green {
+      background: #4CAF50;
+    }
+    .red {
+      background: #F44336;
+    }
+    body.dark {
+      background: #111;
+      color: #eee;
+    }
+    body.dark .box.green {
+      background: #2e7d32;
+    }
+    body.dark .box.red {
+      background: #c62828;
+    }
+    body.dark #darkmode-toggle {
+      background: #eee;
+      color: #111;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="title">REACTION GAME</div>
+    <button id="darkmode-toggle">Dark Mode</button>
+  </header>
+  <div id="scoreboard">
+    Score: <span id="score">0</span> | High Score: <span id="highscore">0</span>
+  </div>
+  <div id="grid"></div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const scoreEl = document.getElementById('score');
+    const highscoreEl = document.getElementById('highscore');
+    const darkToggle = document.getElementById('darkmode-toggle');
+    let score = 0;
+    let highscore = 0;
+    let gameOver = false;
+    let spawnInterval = 1000; // start at 1 second
+    let intervalId;
+
+    function spawnBoxes() {
+      if (gameOver) return;
+      grid.innerHTML = '';
+      let greenIndex = Math.floor(Math.random() * 4);
+      for (let i = 0; i < 4; i++) {
+        const box = document.createElement('div');
+        box.classList.add('box');
+        if (i === greenIndex) {
+          box.classList.add('green');
+        } else {
+          box.classList.add('red');
+        }
+        grid.appendChild(box);
+
+        box.addEventListener('click', () => {
+          if (gameOver) return;
+          if (box.classList.contains('green')) {
+            score++;
+            scoreEl.textContent = score;
+            box.remove();
+            spawnInterval = Math.max(50, spawnInterval - 50);
+            setSpawnInterval(spawnInterval);
+          } else {
+            endGame();
+          }
+        });
+
+        setTimeout(() => {
+          if (box.parentNode) box.remove();
+        }, 800);
+      }
+    }
+
+    function setSpawnInterval(ms) {
+      clearInterval(intervalId);
+      intervalId = setInterval(spawnBoxes, ms);
+    }
+
+    function endGame() {
+      gameOver = true;
+      if (score > highscore) {
+        highscore = score;
+        highscoreEl.textContent = highscore;
+      }
+      alert('Game Over! Your score: ' + score);
+      resetGame();
+    }
+
+    function resetGame() {
+      score = 0;
+      scoreEl.textContent = score;
+      gameOver = false;
+      grid.innerHTML = '';
+      spawnInterval = 1000;
+      setSpawnInterval(spawnInterval);
+    }
+
+    darkToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      if (document.body.classList.contains('dark')) {
+        darkToggle.textContent = 'Light Mode';
+      } else {
+        darkToggle.textContent = 'Dark Mode';
+      }
+    });
+
+    // Start game
+    setSpawnInterval(spawnInterval);
+  </script>
+</body>
+</html>
